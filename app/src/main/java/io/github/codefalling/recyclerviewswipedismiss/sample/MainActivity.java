@@ -59,14 +59,33 @@ public class MainActivity extends ActionBarActivity {
 
                         Toast.makeText(getBaseContext(), String.format("Delete item %d",id),Toast.LENGTH_LONG).show();
                     }
-                }).IsVertical(true).Offset(20).Build();
+                }).IsVertical(false).Build();
 
         recyclerView.setOnTouchListener(listener);
 
 
         // set touch listener for recyclerHorizontalView(horizontal swipe to remove)
 
-     //   anotherRecyclerView.setOnTouchListener(horizontalListener);
+        SwipeDismissRecyclerViewTouchListener verticalListener = new SwipeDismissRecyclerViewTouchListener.Builder(
+                anotherRecyclerView,
+                new SwipeDismissRecyclerViewTouchListener.DismissCallbacks() {
+                    @Override
+                    public boolean canDismiss(int position) {
+                        return true;
+                    }
+
+                    @Override
+                    public void onDismiss(View view) {
+                        int id = recyclerView.getChildPosition(view);
+                        adapter.mDataset.remove(id);
+                        adapter.notifyDataSetChanged();
+
+                        Toast.makeText(getBaseContext(), String.format("Delete item %d",id),Toast.LENGTH_LONG).show();
+                    }
+                }).IsVertical(true).Build();
+
+        anotherRecyclerView.setOnTouchListener(verticalListener);
+
 
     }
     public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>{

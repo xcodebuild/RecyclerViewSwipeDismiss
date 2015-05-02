@@ -76,13 +76,12 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
     }
 
 
-
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
 
-       
+
         if (mViewWidth < 2) {
-            mViewWidth = mRecyclerView.getWidth();
+            mViewWidth = mIsVertical ? mRecyclerView.getHeight() : mRecyclerView.getWidth();
         }
 
         switch (motionEvent.getActionMasked()) {
@@ -133,11 +132,19 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
 
                 if (mDownView != null && mSwiping) {
                     // cancel
-                    mDownView.animate()
-                            .translationX(0)
-                            .alpha(1)
-                            .setDuration(mAnimationTime)
-                            .setListener(null);
+                    if (mIsVertical) {
+                        mDownView.animate()
+                                .translationY(0)
+                                .alpha(1)
+                                .setDuration(mAnimationTime)
+                                .setListener(null);
+                    } else {
+                        mDownView.animate()
+                                .translationX(0)
+                                .alpha(1)
+                                .setDuration(mAnimationTime)
+                                .setListener(null);
+                    }
                 }
                 mVelocityTracker.recycle();
                 mVelocityTracker = null;
@@ -155,52 +162,98 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
                 }
 
                 float deltaX = motionEvent.getRawX() - mDownX;
+                float deltaY = motionEvent.getRawY() - mDownY;
                 mVelocityTracker.addMovement(motionEvent);
                 mVelocityTracker.computeCurrentVelocity(1000);
                 float velocityX = mVelocityTracker.getXVelocity();
+                float velocityY = mVelocityTracker.getYVelocity();
                 float absVelocityX = Math.abs(velocityX);
                 float absVelocityY = Math.abs(mVelocityTracker.getYVelocity());
                 boolean dismiss = false;
                 boolean dismissRight = false;
-                if (Math.abs(deltaX) > mViewWidth / 2 && mSwiping) {
-                    dismiss = true;
-                    dismissRight = deltaX > 0;
-                } else if (mMinFlingVelocity <= absVelocityX && absVelocityX <= mMaxFlingVelocity
-                        && absVelocityY < absVelocityX && mSwiping) {
-                    // dismiss only if flinging in the same direction as dragging
-                    dismiss = (velocityX < 0) == (deltaX < 0);
-                    dismissRight = mVelocityTracker.getXVelocity() > 0;
-                }
-                if (dismiss && mDownPosition != ListView.INVALID_POSITION) {
-                    // dismiss
-                    final View downView = mDownView; // mDownView gets null'd before animation ends
-                    final int downPosition = mDownPosition;
-                    ++mDismissAnimationRefCount;
-                    mDownView.animate()
-                            .translationX(dismissRight ? mViewWidth : -mViewWidth)
-                            .alpha(0)
-                            .setDuration(mAnimationTime)
-                            .setListener(new AnimatorListenerAdapter() {
-                                @Override
-                                public void onAnimationEnd(Animator animation) {
-                                    performDismiss(downView, downPosition);
-                                }
-                            });
+
+                if (mIsVertical) {
+                    if (Math.abs(deltaY) > mViewWidth / 2 && mSwiping) {
+                        dismiss = true;
+                        dismissRight = deltaY > 0;
+                    } else if (mMinFlingVelocity <= absVelocityY && absVelocityY <= mMaxFlingVelocity
+                            && absVelocityX < absVelocityY && mSwiping) {
+                        // dismiss only if flinging in the same direction as dragging
+                        dismiss = (velocityY < 0) == (deltaY < 0);
+                        dismissRight = mVelocityTracker.getYVelocity() > 0;
+                    }
+                    if (dismiss && mDownPosition != ListView.INVALID_POSITION) {
+                        // dismiss
+                        final View downView = mDownView; // mDownView gets null'd before animation ends
+                        final int downPosition = mDownPosition;
+                        ++mDismissAnimationRefCount;
+                        mDownView.animate()
+                                .translationY(dismissRight ? mViewWidth : -mViewWidth)
+                                .alpha(0)
+                                .setDuration(mAnimationTime)
+                                .setListener(new AnimatorListenerAdapter() {
+                                    @Override
+                                    public void onAnimationEnd(Animator animation) {
+                                        performDismiss(downView, downPosition);
+                                    }
+                                });
+                    } else {
+                        // cancel
+                        mDownView.animate()
+                                .translationY(0)
+                                .alpha(1)
+                                .setDuration(mAnimationTime)
+                                .setListener(null);
+                    }
+                    mVelocityTracker.recycle();
+                    mVelocityTracker = null;
+                    mDownX = 0;
+                    mDownY = 0;
+                    mDownView = null;
+                    mDownPosition = ListView.INVALID_POSITION;
+                    mSwiping = false;
                 } else {
-                    // cancel
-                    mDownView.animate()
-                            .translationX(0)
-                            .alpha(1)
-                            .setDuration(mAnimationTime)
-                            .setListener(null);
+
+                    if (Math.abs(deltaX) > mViewWidth / 2 && mSwiping) {
+                        dismiss = true;
+                        dismissRight = deltaX > 0;
+                    } else if (mMinFlingVelocity <= absVelocityX && absVelocityX <= mMaxFlingVelocity
+                            && absVelocityY < absVelocityX && mSwiping) {
+                        // dismiss only if flinging in the same direction as dragging
+                        dismiss = (velocityX < 0) == (deltaX < 0);
+                        dismissRight = mVelocityTracker.getXVelocity() > 0;
+                    }
+                    if (dismiss && mDownPosition != ListView.INVALID_POSITION) {
+                        // dismiss
+                        final View downView = mDownView; // mDownView gets null'd before animation ends
+                        final int downPosition = mDownPosition;
+                        ++mDismissAnimationRefCount;
+                        mDownView.animate()
+                                .translationX(dismissRight ? mViewWidth : -mViewWidth)
+                                .alpha(0)
+                                .setDuration(mAnimationTime)
+                                .setListener(new AnimatorListenerAdapter() {
+                                    @Override
+                                    public void onAnimationEnd(Animator animation) {
+                                        performDismiss(downView, downPosition);
+                                    }
+                                });
+                    } else {
+                        // cancel
+                        mDownView.animate()
+                                .translationX(0)
+                                .alpha(1)
+                                .setDuration(mAnimationTime)
+                                .setListener(null);
+                    }
+                    mVelocityTracker.recycle();
+                    mVelocityTracker = null;
+                    mDownX = 0;
+                    mDownY = 0;
+                    mDownView = null;
+                    mDownPosition = ListView.INVALID_POSITION;
+                    mSwiping = false;
                 }
-                mVelocityTracker.recycle();
-                mVelocityTracker = null;
-                mDownX = 0;
-                mDownY = 0;
-                mDownView = null;
-                mDownPosition = ListView.INVALID_POSITION;
-                mSwiping = false;
                 break;
             }
 
@@ -213,25 +266,49 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
                 mVelocityTracker.addMovement(motionEvent);
                 float deltaX = motionEvent.getRawX() - mDownX;
                 float deltaY = motionEvent.getRawY() - mDownY;
-                if (Math.abs(deltaX) > mSlop && Math.abs(deltaY) < Math.abs(deltaX) / 2) {
-                    mSwiping = true;
-                    mSwipingSlop = (deltaX > 0 ? mSlop : -mSlop);
-                    mRecyclerView.requestDisallowInterceptTouchEvent(true);
+                if (mIsVertical) {
+                    if (Math.abs(deltaY) > mSlop && Math.abs(deltaX) < Math.abs(deltaY) / 2) {
+                        mSwiping = true;
+                        mSwipingSlop = (deltaY > 0 ? mSlop : -mSlop);
+                        mRecyclerView.requestDisallowInterceptTouchEvent(true);
 
-                    // Cancel ListView's touch (un-highlighting the item)
-                    MotionEvent cancelEvent = MotionEvent.obtain(motionEvent);
-                    cancelEvent.setAction(MotionEvent.ACTION_CANCEL |
-                            (motionEvent.getActionIndex()
-                                    << MotionEvent.ACTION_POINTER_INDEX_SHIFT));
-                    mRecyclerView.onTouchEvent(cancelEvent);
-                    cancelEvent.recycle();
-                }
+                        // Cancel ListView's touch (un-highlighting the item)
+                        MotionEvent cancelEvent = MotionEvent.obtain(motionEvent);
+                        cancelEvent.setAction(MotionEvent.ACTION_CANCEL |
+                                (motionEvent.getActionIndex()
+                                        << MotionEvent.ACTION_POINTER_INDEX_SHIFT));
+                        mRecyclerView.onTouchEvent(cancelEvent);
+                        cancelEvent.recycle();
+                    }
 
-                if (mSwiping) {
-                    mDownView.setTranslationX(deltaX - mSwipingSlop);
-                    mDownView.setAlpha(Math.max(0f, Math.min(1f,
-                            1f - 2f * Math.abs(deltaX) / mViewWidth)));
-                    return true;
+                    if (mSwiping) {
+                        mDownView.setTranslationY(deltaY - mSwipingSlop);
+                        mDownView.setAlpha(Math.max(0f, Math.min(1f,
+                                1f - 2f * Math.abs(deltaY) / mViewWidth)));
+                        return true;
+                    }
+
+                } else {
+                    if (Math.abs(deltaX) > mSlop && Math.abs(deltaY) < Math.abs(deltaX) / 2) {
+                        mSwiping = true;
+                        mSwipingSlop = (deltaX > 0 ? mSlop : -mSlop);
+                        mRecyclerView.requestDisallowInterceptTouchEvent(true);
+
+                        // Cancel ListView's touch (un-highlighting the item)
+                        MotionEvent cancelEvent = MotionEvent.obtain(motionEvent);
+                        cancelEvent.setAction(MotionEvent.ACTION_CANCEL |
+                                (motionEvent.getActionIndex()
+                                        << MotionEvent.ACTION_POINTER_INDEX_SHIFT));
+                        mRecyclerView.onTouchEvent(cancelEvent);
+                        cancelEvent.recycle();
+                    }
+
+                    if (mSwiping) {
+                        mDownView.setTranslationX(deltaX - mSwipingSlop);
+                        mDownView.setAlpha(Math.max(0f, Math.min(1f,
+                                1f - 2f * Math.abs(deltaX) / mViewWidth)));
+                        return true;
+                    }
                 }
                 break;
             }
@@ -261,7 +338,11 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
         // frame; in the future we may want to do something smarter and more performant.
 
         final ViewGroup.LayoutParams lp = dismissView.getLayoutParams();
-        final int originalHeight = dismissView.getHeight();
+        final int originalHeight;
+        if(mIsVertical)
+            originalHeight = dismissView.getWidth();
+        else
+            originalHeight = dismissView.getHeight();
 
         ValueAnimator animator = ValueAnimator.ofInt(originalHeight, 1).setDuration(mAnimationTime);
 
@@ -288,9 +369,16 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
                     for (PendingDismissData pendingDismiss : mPendingDismisses) {
                         // Reset view presentation
                         pendingDismiss.view.setAlpha(1f);
-                        pendingDismiss.view.setTranslationX(0);
+                        if(mIsVertical)
+                            pendingDismiss.view.setTranslationY(0);
+                        else
+                            pendingDismiss.view.setTranslationX(0);
                         lp = pendingDismiss.view.getLayoutParams();
-                        lp.height = originalHeight;
+                        if(mIsVertical)
+                            lp.width = originalHeight;
+                        else
+                            lp.height = originalHeight;
+
                         pendingDismiss.view.setLayoutParams(lp);
                     }
 
@@ -308,7 +396,10 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                lp.height = (Integer) valueAnimator.getAnimatedValue();
+                if(mIsVertical)
+                    lp.width = (Integer) valueAnimator.getAnimatedValue();
+                else
+                    lp.height = (Integer) valueAnimator.getAnimatedValue();
                 dismissView.setLayoutParams(lp);
             }
         });
@@ -321,7 +412,7 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
         private DismissCallbacks mCallbacks;
 
         private boolean mIsVertical = false;
-        private int mOffset = 0;
+
 
         public  Builder(RecyclerView recyclerView,DismissCallbacks callbacks){
             mRecyclerView = recyclerView;
@@ -339,9 +430,6 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
             return new SwipeDismissRecyclerViewTouchListener(this);
         }
 
-        public Builder Offset(int offset){
-            mOffset = offset;
-            return this;
-        }
+
     }
 }
