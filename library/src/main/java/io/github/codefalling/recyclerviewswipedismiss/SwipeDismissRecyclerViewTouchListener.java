@@ -430,17 +430,17 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
             mCallbacks = callbacks;
         }
 
-        public Builder IsVertical(boolean isVertical){
+        public Builder setIsVertical(boolean isVertical){
             mIsVertical = isVertical;
             return this;
         }
 
-        public Builder ItemTouchCallback(OnItemTouchCallBack callBack){
+        public Builder setItemTouchCallback(OnItemTouchCallBack callBack){
             mItemTouchCallback = callBack;
             return this;
         }
 
-        public SwipeDismissRecyclerViewTouchListener Build(){
+        public SwipeDismissRecyclerViewTouchListener create(){
             return new SwipeDismissRecyclerViewTouchListener(this);
         }
 

@@ -71,15 +71,15 @@ public class MainActivity extends ActionBarActivity {
                         Toast.makeText(getBaseContext(), String.format("Delete item %d",id),Toast.LENGTH_LONG).show();
                     }
                 })
-                .IsVertical(false)
-                .ItemTouchCallback(
+                .setIsVertical(false)
+                .setItemTouchCallback(
                         new SwipeDismissRecyclerViewTouchListener.OnItemTouchCallBack() {
                             @Override
                             public void onTouch(int index) {
-                                showDialog(String.format("Click item %d",index));
+                                showDialog(String.format("Click item %d", index));
                             }
                         })
-                .Build();
+                .create();
 
         recyclerView.setOnTouchListener(listener);
 
@@ -102,7 +102,7 @@ public class MainActivity extends ActionBarActivity {
 
                         Toast.makeText(getBaseContext(), String.format("Delete item %d",id),Toast.LENGTH_LONG).show();
                     }
-                }).IsVertical(true).Build();
+                }).setIsVertical(true).create();
 
         anotherRecyclerView.setOnTouchListener(verticalListener);
 
