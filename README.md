@@ -27,27 +27,38 @@ dependencies {
 ```java
 
 SwipeDismissRecyclerViewTouchListener listener = new SwipeDismissRecyclerViewTouchListener.Builder(
-    recyclerView,
-    new SwipeDismissRecyclerViewTouchListener.DismissCallbacks() {
-         @Override
-         public boolean canDismiss(int position) {
-             // who return false can't be swipe 
-             return true;
-         }
+        recyclerView,
+        new SwipeDismissRecyclerViewTouchListener.DismissCallbacks() {
+            @Override
+            public boolean canDismiss(int position) {
+                return true;
+            }
 
-         @Override
-         public void onDismiss(View view) {
-              // do what you want when dismiss
-         }
-     }).IsVertical(false).Build();
+            @Override
+            public void onDismiss(View view) {
+                // Do what you want when dismiss
+                
+            }
+        })
+        .setIsVertical(false)
+        .setItemTouchCallback(
+                new SwipeDismissRecyclerViewTouchListener.OnItemTouchCallBack() {
+                    @Override
+                    public void onTouch(int index) {
+                    	// Do what you want when item be touched
+                    }
+                })
+        .create();
 recyclerView.setOnTouchListener(listener);
 ```
 
 ## More
 
-- `IsVertical(false)` means allow **swipe in horizontal direction** 
+- `setIsVertical(false)` means allow **swipe in horizontal direction** 
 
 - `listener.setEnabled(false)` can disable swipe to dismiss
+
+- `onTouch` will be called when MOUSE_UP on item without swipe
 
 ## Sample
 
