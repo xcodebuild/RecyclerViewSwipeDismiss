@@ -33,6 +33,7 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
     private RecyclerView mRecyclerView;
     private DismissCallbacks mCallbacks;
     private boolean mIsVertical;
+    private OnItemTouchCallBack mItemTouchCallback;
 
     private int mViewWidth = 1; // 1 and not 0 to prevent dividing by zero
 
@@ -53,8 +54,11 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
 
         boolean canDismiss(int position);
 
-
         void onDismiss(View view);
+    }
+
+    public interface OnItemTouchCallBack {
+        void onTouch(int index);
     }
 
 
@@ -68,6 +72,7 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
         mRecyclerView = builder.mRecyclerView;
         mCallbacks = builder.mCallbacks;
         mIsVertical = builder.mIsVertical;
+        mItemTouchCallback = builder.mItemTouchCallback;
     }
 
 
@@ -157,6 +162,11 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
             }
 
             case MotionEvent.ACTION_UP: {
+                if(!mSwiping&&mDownView!=null) {
+                    mItemTouchCallback.onTouch(mRecyclerView.getChildPosition(mDownView));
+                    return true;
+                }
+
                 if (mVelocityTracker == null) {
                     break;
                 }
@@ -411,6 +421,7 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
         private RecyclerView mRecyclerView;
         private DismissCallbacks mCallbacks;
 
+        private OnItemTouchCallBack mItemTouchCallback = null;
         private boolean mIsVertical = false;
 
 
@@ -424,7 +435,10 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
             return this;
         }
 
-
+        public Builder ItemTouchCallback(OnItemTouchCallBack callBack){
+            mItemTouchCallback = callBack;
+            return this;
+        }
 
         public SwipeDismissRecyclerViewTouchListener Build(){
             return new SwipeDismissRecyclerViewTouchListener(this);

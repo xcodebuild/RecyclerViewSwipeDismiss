@@ -1,5 +1,6 @@
 package io.github.codefalling.recyclerviewswipedismiss.sample;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,6 +17,16 @@ import io.github.codefalling.recyclerviewswipedismiss.SwipeDismissRecyclerViewTo
 
 
 public class MainActivity extends ActionBarActivity {
+
+    private void showDialog(String msg){
+        AlertDialog alert = new AlertDialog.Builder(MainActivity.this)
+                .setTitle("alert")
+                .setMessage(msg)
+                .setCancelable(false)
+                .create();
+        alert.setCanceledOnTouchOutside(true);
+        alert.show();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +70,16 @@ public class MainActivity extends ActionBarActivity {
 
                         Toast.makeText(getBaseContext(), String.format("Delete item %d",id),Toast.LENGTH_LONG).show();
                     }
-                }).IsVertical(false).Build();
+                })
+                .IsVertical(false)
+                .ItemTouchCallback(
+                        new SwipeDismissRecyclerViewTouchListener.OnItemTouchCallBack() {
+                            @Override
+                            public void onTouch(int index) {
+                                showDialog(String.format("Click item %d",index));
+                            }
+                        })
+                .Build();
 
         recyclerView.setOnTouchListener(listener);
 
