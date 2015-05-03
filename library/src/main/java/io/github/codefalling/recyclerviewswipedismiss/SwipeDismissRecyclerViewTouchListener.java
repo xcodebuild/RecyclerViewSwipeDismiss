@@ -164,6 +164,13 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
             case MotionEvent.ACTION_UP: {
                 if(!mSwiping&&mDownView!=null) {
                     mItemTouchCallback.onTouch(mRecyclerView.getChildPosition(mDownView));
+                    mVelocityTracker.recycle();
+                    mVelocityTracker = null;
+                    mDownX = 0;
+                    mDownY = 0;
+                    mDownView = null;
+                    mDownPosition = ListView.INVALID_POSITION;
+                    mSwiping = false;
                     return true;
                 }
 
