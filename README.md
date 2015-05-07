@@ -62,4 +62,4 @@ recyclerView.setOnTouchListener(listener);
 
 ## Sample
 
-You can see sample code in [`sample/MainActivity.java`](https://github.com/CodeFalling/RecyclerViewSwipeDismiss/blob/master/Sample/app/src/main/java/io/github/codefalling/recyclerviewswipedismiss/sample/MainActivity.java)
+You can see sample code in [`sample/MainActivity.java`](https://github.com/CodeFalling/RecyclerViewSwipeDismiss/blob/master/app%2Fsrc%2Fmain%2Fjava%2Fio%2Fgithub%2Fcodefalling%2Frecyclerviewswipedismiss%2Fsample%2FMainActivity.java)
