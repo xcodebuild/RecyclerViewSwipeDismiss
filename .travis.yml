@@ -1,0 +1,16 @@
+language: android
+jdk: openjdk7
+android:
+  components:
+    - build-tools-21.1.2
+    - extra-android-support
+    - extra-android-m2repository
+    - android-21
+    - sys-img-armeabi-v7a-android-21
+
+  licenses:
+    - '.+'
+notifications:
+  email: false
+script: ./gradlew build
+

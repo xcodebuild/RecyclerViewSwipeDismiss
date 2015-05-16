@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/CodeFalling/RecyclerViewSwipeDismiss.svg?branch=master)](https://travis-ci.org/CodeFalling/RecyclerViewSwipeDismiss)
 # RecyclerViewSwipeDismiss
 A very easy-to-use and non-intrusive implement of Swipe to dismiss for RecyclerView.
 
