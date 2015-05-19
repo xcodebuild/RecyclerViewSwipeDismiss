@@ -105,14 +105,8 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
                 int x = (int) motionEvent.getRawX() - listViewCoords[0];
                 int y = (int) motionEvent.getRawY() - listViewCoords[1];
                 View child;
-                for (int i = 0; i < childCount; i++) {
-                    child = mRecyclerView.getChildAt(i);
-                    child.getHitRect(rect);
-                    if (rect.contains(x, y)) {
-                        mDownView = child;
-                        break;
-                    }
-                }
+
+                mDownView = mRecyclerView.findChildViewUnder(x,y);
 
 
                 if (mDownView != null) {
