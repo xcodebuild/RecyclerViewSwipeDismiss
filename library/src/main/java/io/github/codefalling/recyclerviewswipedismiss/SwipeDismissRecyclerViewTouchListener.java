@@ -50,18 +50,6 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
     private boolean mPaused;
 
 
-    public interface DismissCallbacks {
-
-        boolean canDismiss(int position);
-
-        void onDismiss(View view);
-    }
-
-    public interface OnItemTouchCallBack {
-        void onTouch(int index);
-    }
-
-
     public SwipeDismissRecyclerViewTouchListener(Builder builder) {
         ViewConfiguration vc = ViewConfiguration.get(builder.mRecyclerView.getContext());
         mSlop = vc.getScaledTouchSlop();
@@ -75,11 +63,9 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
         mItemTouchCallback = builder.mItemTouchCallback;
     }
 
-
     public void setEnabled(boolean enabled) {
         mPaused = !enabled;
     }
-
 
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -106,7 +92,7 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
                 int y = (int) motionEvent.getRawY() - listViewCoords[1];
                 View child;
 
-                mDownView = mRecyclerView.findChildViewUnder(x,y);
+                mDownView = mRecyclerView.findChildViewUnder(x, y);
 
 
                 if (mDownView != null) {
@@ -156,7 +142,7 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
             }
 
             case MotionEvent.ACTION_UP: {
-                if(!mSwiping&&mDownView!=null&&mItemTouchCallback != null) {
+                if (!mSwiping && mDownView != null && mItemTouchCallback != null) {
 
                     mItemTouchCallback.onTouch(mRecyclerView.getChildPosition(mDownView));
                     mVelocityTracker.recycle();
@@ -328,22 +314,6 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
         return false;
     }
 
-    class PendingDismissData implements Comparable<PendingDismissData> {
-        public int position;
-        public View view;
-
-        public PendingDismissData(int position, View view) {
-            this.position = position;
-            this.view = view;
-        }
-
-        @Override
-        public int compareTo(PendingDismissData other) {
-            // Sort by descending position
-            return other.position - position;
-        }
-    }
-
     private void performDismiss(final View dismissView, final int dismissPosition) {
         // Animate the dismissed list item to zero-height and fire the dismiss callback when
         // all dismissed list item animations have completed. This triggers layout on each animation
@@ -351,7 +321,7 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
 
         final ViewGroup.LayoutParams lp = dismissView.getLayoutParams();
         final int originalHeight;
-        if(mIsVertical)
+        if (mIsVertical)
             originalHeight = dismissView.getWidth();
         else
             originalHeight = dismissView.getHeight();
@@ -381,12 +351,12 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
                     for (PendingDismissData pendingDismiss : mPendingDismisses) {
                         // Reset view presentation
                         pendingDismiss.view.setAlpha(1f);
-                        if(mIsVertical)
+                        if (mIsVertical)
                             pendingDismiss.view.setTranslationY(0);
                         else
                             pendingDismiss.view.setTranslationX(0);
                         lp = pendingDismiss.view.getLayoutParams();
-                        if(mIsVertical)
+                        if (mIsVertical)
                             lp.width = originalHeight;
                         else
                             lp.height = originalHeight;
@@ -408,7 +378,7 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                if(mIsVertical)
+                if (mIsVertical)
                     lp.width = (Integer) valueAnimator.getAnimatedValue();
                 else
                     lp.height = (Integer) valueAnimator.getAnimatedValue();
@@ -419,7 +389,20 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
         mPendingDismisses.add(new PendingDismissData(dismissPosition, dismissView));
         animator.start();
     }
-    static public class Builder{
+
+
+    public interface DismissCallbacks {
+
+        boolean canDismiss(int position);
+
+        void onDismiss(View view);
+    }
+
+    public interface OnItemTouchCallBack {
+        void onTouch(int index);
+    }
+
+    static public class Builder {
         private RecyclerView mRecyclerView;
         private DismissCallbacks mCallbacks;
 
@@ -427,25 +410,41 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
         private boolean mIsVertical = false;
 
 
-        public  Builder(RecyclerView recyclerView,DismissCallbacks callbacks){
+        public Builder(RecyclerView recyclerView, DismissCallbacks callbacks) {
             mRecyclerView = recyclerView;
             mCallbacks = callbacks;
         }
 
-        public Builder setIsVertical(boolean isVertical){
+        public Builder setIsVertical(boolean isVertical) {
             mIsVertical = isVertical;
             return this;
         }
 
-        public Builder setItemTouchCallback(OnItemTouchCallBack callBack){
+        public Builder setItemTouchCallback(OnItemTouchCallBack callBack) {
             mItemTouchCallback = callBack;
             return this;
         }
 
-        public SwipeDismissRecyclerViewTouchListener create(){
+        public SwipeDismissRecyclerViewTouchListener create() {
             return new SwipeDismissRecyclerViewTouchListener(this);
         }
 
 
+    }
+
+    class PendingDismissData implements Comparable<PendingDismissData> {
+        public int position;
+        public View view;
+
+        public PendingDismissData(int position, View view) {
+            this.position = position;
+            this.view = view;
+        }
+
+        @Override
+        public int compareTo(PendingDismissData other) {
+            // Sort by descending position
+            return other.position - position;
+        }
     }
 }
