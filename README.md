@@ -21,7 +21,7 @@ repositories {
 }
 
 dependencies {
-	 compile 'com.github.CodeFalling:RecyclerViewSwipeDismiss:v1.1.0'
+	 compile 'com.github.CodeFalling:RecyclerViewSwipeDismiss:v1.1.1'
 }
 ```
 
