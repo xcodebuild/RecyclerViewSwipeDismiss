@@ -1,3 +1,5 @@
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-RecyclerViewSwipeDismiss-brightgreen.svg?style=flat)](http://android-arsenal.com/details/1/1838)
+![BSD](http://img.shields.io/badge/license-BSD-green.svg)
 [![Build Status](https://travis-ci.org/CodeFalling/RecyclerViewSwipeDismiss.svg?branch=master)](https://travis-ci.org/CodeFalling/RecyclerViewSwipeDismiss)
 # RecyclerViewSwipeDismiss
 A very easy-to-use and non-intrusive implement of Swipe to dismiss for RecyclerView.
@@ -64,7 +66,3 @@ recyclerView.setOnTouchListener(listener);
 ## Sample
 
 You can see sample code in [`sample/MainActivity.java`](https://github.com/CodeFalling/RecyclerViewSwipeDismiss/blob/master/app%2Fsrc%2Fmain%2Fjava%2Fio%2Fgithub%2Fcodefalling%2Frecyclerviewswipedismiss%2Fsample%2FMainActivity.java)
-
-## License
-
-BSD license.
