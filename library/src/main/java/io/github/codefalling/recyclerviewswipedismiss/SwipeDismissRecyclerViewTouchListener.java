@@ -150,7 +150,7 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
                 mDownX = 0;
                 mDownY = 0;
                 mDownView = null;
-                mDownPosition = ListView.INVALID_POSITION;
+                mDownPosition = RecyclerView.NO_POSITION;
                 mSwiping = false;
                 break;
             }
