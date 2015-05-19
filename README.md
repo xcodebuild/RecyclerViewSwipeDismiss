@@ -1,5 +1,6 @@
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-RecyclerViewSwipeDismiss-brightgreen.svg?style=flat)](http://android-arsenal.com/details/1/1838)
 ![BSD](http://img.shields.io/badge/license-BSD-green.svg)
+[![Jitpack](https://img.shields.io/github/release/CodeFalling/RecyclerViewSwipeDismiss.svg?label=JitPack%20Maven)](https://jitpack.io/#CodeFalling/RecyclerViewSwipeDismiss/)
 [![Build Status](https://travis-ci.org/CodeFalling/RecyclerViewSwipeDismiss.svg?branch=master)](https://travis-ci.org/CodeFalling/RecyclerViewSwipeDismiss)
 # RecyclerViewSwipeDismiss
 A very easy-to-use and non-intrusive implement of Swipe to dismiss for RecyclerView.
