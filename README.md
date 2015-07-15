@@ -7,7 +7,7 @@ A very easy-to-use and non-intrusive implement of Swipe to dismiss for RecyclerV
 
 ## Preview
 
-![preview](http://i2.tietuku.com/a5a1a6fbd300397a.gif)
+![preview](RecyclerViewSwipeDismiss.gif)
 
 
 ## How to use
