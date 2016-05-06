@@ -52,6 +52,11 @@ SwipeDismissRecyclerViewTouchListener listener = new SwipeDismissRecyclerViewTou
                     	// Do what you want when item be touched
                     }
                 })
+        .setItemClickCallback(new SwipeDismissRecyclerViewTouchListener.OnItemClickCallBack() {
+                    @Override
+                    public void onClick(int position) {
+                        // Do what you want when item be clicked                    }
+                })
         .create();
 recyclerView.setOnTouchListener(listener);
 ```
@@ -63,6 +68,8 @@ recyclerView.setOnTouchListener(listener);
 - `listener.setEnabled(false)` can disable swipe to dismiss
 
 - `onTouch` will be called when MOUSE_UP on item without swipe
+
+- `onClick` will be called when ACTION_UP on item within 1 second and move no more than a fixed distance
 
 ## Sample
 
