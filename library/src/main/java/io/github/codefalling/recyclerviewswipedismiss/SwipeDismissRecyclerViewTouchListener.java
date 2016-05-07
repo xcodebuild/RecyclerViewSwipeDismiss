@@ -14,7 +14,7 @@
  * limitations under the License.
  * Modified by falling on 15-5-1.
  */
- 
+
 package io.github.codefalling.recyclerviewswipedismiss;
 
 import android.animation.Animator;
@@ -34,10 +34,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
-
-
 public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListener {
+    /**
+     * Max allowed duration for a "click", in milliseconds.
+     */
+    private static final int MAX_CLICK_DURATION = 1000;
+
     // Cached ViewConfiguration and system-wide constant values
     private int mSlop;
     private int mMinFlingVelocity;
@@ -49,6 +51,11 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
     private DismissCallbacks mCallbacks;
     private boolean mIsVertical;
     private OnItemTouchCallBack mItemTouchCallback;
+    private OnItemClickCallBack mItemClickCallback;
+
+    private long pressStartTime;
+    private float pressedX;
+    private float pressedY;
 
     private int mViewWidth = 1; // 1 and not 0 to prevent dividing by zero
 
@@ -64,7 +71,6 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
     private View mDownView;
     private boolean mPaused;
 
-
     public SwipeDismissRecyclerViewTouchListener(Builder builder) {
         ViewConfiguration vc = ViewConfiguration.get(builder.mRecyclerView.getContext());
         mSlop = vc.getScaledTouchSlop();
@@ -76,6 +82,7 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
         mCallbacks = builder.mCallbacks;
         mIsVertical = builder.mIsVertical;
         mItemTouchCallback = builder.mItemTouchCallback;
+        mItemClickCallback = builder.mItemClickCallback;
     }
 
     public void setEnabled(boolean enabled) {
@@ -84,19 +91,19 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
 
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
-
-
         if (mViewWidth < 2) {
             mViewWidth = mIsVertical ? mRecyclerView.getHeight() : mRecyclerView.getWidth();
         }
 
         switch (motionEvent.getActionMasked()) {
             case MotionEvent.ACTION_DOWN: {
+                pressStartTime = System.currentTimeMillis();
+                pressedX = motionEvent.getX();
+                pressedY = motionEvent.getY();
+
                 if (mPaused) {
                     return false;
                 }
-
-                // TODO: ensure this is a finger, and set a flag
 
                 // Find the child view that was touched (perform a hit test)
                 Rect rect = new Rect();
@@ -157,8 +164,13 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
             }
 
             case MotionEvent.ACTION_UP: {
-                if (!mSwiping && mDownView != null && mItemTouchCallback != null) {
+                long pressDuration = System.currentTimeMillis() - pressStartTime;
+                if (pressDuration < MAX_CLICK_DURATION && distance(pressedX, pressedY, motionEvent.getX(), motionEvent.getY()) < mSlop) {
+                    mItemClickCallback.onClick(mRecyclerView.getChildPosition(mDownView));
+                    return true;
+                }
 
+                if (!mSwiping && mDownView != null && mItemTouchCallback != null) {
                     mItemTouchCallback.onTouch(mRecyclerView.getChildPosition(mDownView));
                     mVelocityTracker.recycle();
                     mVelocityTracker = null;
@@ -405,16 +417,18 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
         animator.start();
     }
 
-
     public interface DismissCallbacks {
-
         boolean canDismiss(int position);
 
         void onDismiss(View view);
     }
 
     public interface OnItemTouchCallBack {
-        void onTouch(int index);
+        void onTouch(int position);
+    }
+
+    public interface OnItemClickCallBack {
+        void onClick(int position);
     }
 
     static public class Builder {
@@ -422,6 +436,7 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
         private DismissCallbacks mCallbacks;
 
         private OnItemTouchCallBack mItemTouchCallback = null;
+        private OnItemClickCallBack mItemClickCallback = null;
         private boolean mIsVertical = false;
 
 
@@ -437,6 +452,11 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
 
         public Builder setItemTouchCallback(OnItemTouchCallBack callBack) {
             mItemTouchCallback = callBack;
+            return this;
+        }
+
+        public Builder setItemClickCallback(OnItemClickCallBack callBack) {
+            mItemClickCallback = callBack;
             return this;
         }
 
@@ -462,4 +482,11 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
             return other.position - position;
         }
     }
+
+    private float distance(float x1, float y1, float x2, float y2) {
+        float dx = x1 - x2;
+        float dy = y1 - y2;
+        return (float) Math.sqrt(dx * dx + dy * dy);
+    }
 }
+
