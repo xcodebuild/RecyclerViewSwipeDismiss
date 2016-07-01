@@ -57,6 +57,7 @@ SwipeDismissRecyclerViewTouchListener listener = new SwipeDismissRecyclerViewTou
                     public void onClick(int position) {
                         // Do what you want when item be clicked                    }
                 })
+        .setBackgroundId(R.drawable.bg_item_normal, R.drawable.bg_item_selected)
         .create();
 recyclerView.setOnTouchListener(listener);
 ```
@@ -70,6 +71,8 @@ recyclerView.setOnTouchListener(listener);
 - `onTouch` will be called when MOUSE_UP on item without swipe
 
 - `onClick` will be called when ACTION_UP on item within 1 second and move no more than a fixed distance
+
+- By use `setBackgroundId`, you can set background id for item's normal and pressed state, just like the normal effect in RecyclerView
 
 ## Sample
 
