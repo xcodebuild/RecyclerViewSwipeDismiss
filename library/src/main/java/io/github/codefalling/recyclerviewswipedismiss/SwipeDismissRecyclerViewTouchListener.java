@@ -17,6 +17,7 @@
 
 package io.github.codefalling.recyclerviewswipedismiss;
 
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
@@ -70,6 +71,10 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
     private int mDownPosition;
     private View mDownView;
     private boolean mPaused;
+    private int mBackgroundPressId;
+    private int mBackgroundNormalId;
+
+    private boolean hasMoveAfterDown;
 
     public SwipeDismissRecyclerViewTouchListener(Builder builder) {
         ViewConfiguration vc = ViewConfiguration.get(builder.mRecyclerView.getContext());
@@ -83,6 +88,8 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
         mIsVertical = builder.mIsVertical;
         mItemTouchCallback = builder.mItemTouchCallback;
         mItemClickCallback = builder.mItemClickCallback;
+        mBackgroundNormalId = builder.mBackgroundNormalId;
+        mBackgroundPressId = builder.mBackgroundPressId;
     }
 
     public void setEnabled(boolean enabled) {
@@ -97,6 +104,8 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
 
         switch (motionEvent.getActionMasked()) {
             case MotionEvent.ACTION_DOWN: {
+                hasMoveAfterDown = false;
+
                 pressStartTime = System.currentTimeMillis();
                 pressedX = motionEvent.getX();
                 pressedY = motionEvent.getY();
@@ -115,7 +124,7 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
                 View child;
 
                 mDownView = mRecyclerView.findChildViewUnder(x, y);
-
+                updateItemBackground(mDownView, motionEvent);
 
                 if (mDownView != null) {
                     mDownX = motionEvent.getRawX();
@@ -136,6 +145,8 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
                 if (mVelocityTracker == null) {
                     break;
                 }
+
+                updateItemBackground(mDownView, motionEvent);
 
                 if (mDownView != null && mSwiping) {
                     // cancel
@@ -169,6 +180,8 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
                     mItemClickCallback.onClick(mRecyclerView.getChildPosition(mDownView));
                     return true;
                 }
+
+                updateItemBackground(mDownView, motionEvent);
 
                 if (!mSwiping && mDownView != null && mItemTouchCallback != null) {
                     mItemTouchCallback.onTouch(mRecyclerView.getChildPosition(mDownView));
@@ -283,15 +296,22 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
             }
 
             case MotionEvent.ACTION_MOVE: {
+                hasMoveAfterDown = true;
 
                 if (mVelocityTracker == null || mPaused) {
                     break;
                 }
 
+                updateItemBackground(mDownView, motionEvent);
+
                 mVelocityTracker.addMovement(motionEvent);
                 float deltaX = motionEvent.getRawX() - mDownX;
                 float deltaY = motionEvent.getRawY() - mDownY;
                 if (mIsVertical) {
+                    if ((Math.abs(deltaX) >= Math.abs(deltaY) / 2) && mBackgroundNormalId != 0) {
+                        mDownView.setBackgroundResource(mBackgroundNormalId);
+                    }
+
                     if (Math.abs(deltaY) > mSlop && Math.abs(deltaX) < Math.abs(deltaY) / 2) {
                         mSwiping = true;
                         mSwipingSlop = (deltaY > 0 ? mSlop : -mSlop);
@@ -307,13 +327,17 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
                     }
 
                     if (mSwiping) {
-                        mDownView.setTranslationY(deltaY - mSwipingSlop);
+                        mDownView.setTranslationY(deltaY);
                         mDownView.setAlpha(Math.max(0f, Math.min(1f,
                                 1f - 2f * Math.abs(deltaY) / mViewWidth)));
                         return true;
                     }
 
                 } else {
+                    if ((Math.abs(deltaY) >= Math.abs(deltaX) / 2) && mBackgroundNormalId != 0) {
+                        mDownView.setBackgroundResource(mBackgroundNormalId);
+                    }
+
                     if (Math.abs(deltaX) > mSlop && Math.abs(deltaY) < Math.abs(deltaX) / 2) {
                         mSwiping = true;
                         mSwipingSlop = (deltaX > 0 ? mSlop : -mSlop);
@@ -329,7 +353,7 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
                     }
 
                     if (mSwiping) {
-                        mDownView.setTranslationX(deltaX - mSwipingSlop);
+                        mDownView.setTranslationX(deltaX);
                         mDownView.setAlpha(Math.max(0f, Math.min(1f,
                                 1f - 2f * Math.abs(deltaX) / mViewWidth)));
                         return true;
@@ -438,7 +462,8 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
         private OnItemTouchCallBack mItemTouchCallback = null;
         private OnItemClickCallBack mItemClickCallback = null;
         private boolean mIsVertical = false;
-
+        private int mBackgroundPressId;
+        private int mBackgroundNormalId;
 
         public Builder(RecyclerView recyclerView, DismissCallbacks callbacks) {
             mRecyclerView = recyclerView;
@@ -457,6 +482,12 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
 
         public Builder setItemClickCallback(OnItemClickCallBack callBack) {
             mItemClickCallback = callBack;
+            return this;
+        }
+
+        public Builder setBackgroundId(int backgroundNormalId, int backgroundPressId) {
+            mBackgroundNormalId = backgroundNormalId;
+            mBackgroundPressId = backgroundPressId;
             return this;
         }
 
@@ -488,5 +519,31 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
         float dy = y1 - y2;
         return (float) Math.sqrt(dx * dx + dy * dy);
     }
+
+    private void updateItemBackground(final View mDownView, MotionEvent motionEvent) {
+        if (mBackgroundPressId == 0 || mBackgroundNormalId == 0 || mDownView == null) {
+            return;
+        }
+
+        switch (motionEvent.getActionMasked()) {
+            case MotionEvent.ACTION_DOWN:
+                mRecyclerView.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!hasMoveAfterDown) {
+                            mDownView.setBackgroundResource(mBackgroundPressId);
+                        }
+                    }
+                }, ViewConfiguration.getTapTimeout());
+                break;
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                mDownView.setBackgroundResource(mBackgroundNormalId);
+                break;
+            default:
+                break;
+        }
+    }
+
 }
 
