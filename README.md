@@ -1,3 +1,5 @@
+![](https://img.shields.io/badge/Maintained%3F-NO%20LONGER-red.svg?style=flat)
+
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-RecyclerViewSwipeDismiss-brightgreen.svg?style=flat)](http://android-arsenal.com/details/1/1838)
 ![BSD](http://img.shields.io/badge/license-BSD-green.svg)
 [![Jitpack](https://img.shields.io/github/release/CodeFalling/RecyclerViewSwipeDismiss.svg?label=JitPack%20Maven)](https://jitpack.io/#CodeFalling/RecyclerViewSwipeDismiss/)
