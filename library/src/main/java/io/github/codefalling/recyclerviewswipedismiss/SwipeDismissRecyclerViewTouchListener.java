@@ -176,7 +176,7 @@ public class SwipeDismissRecyclerViewTouchListener implements View.OnTouchListen
 
             case MotionEvent.ACTION_UP: {
                 long pressDuration = System.currentTimeMillis() - pressStartTime;
-                if (pressDuration < MAX_CLICK_DURATION && distance(pressedX, pressedY, motionEvent.getX(), motionEvent.getY()) < mSlop) {
+                if (this.mItemClickCallback != null && pressDuration < MAX_CLICK_DURATION && distance(pressedX, pressedY, motionEvent.getX(), motionEvent.getY()) < mSlop) {
                     mItemClickCallback.onClick(mRecyclerView.getChildPosition(mDownView));
                     return true;
                 }
